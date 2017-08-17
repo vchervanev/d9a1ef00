@@ -12,3 +12,9 @@ tag:
 
 push: 
 	docker push stor.highloadcup.ru/travels/oceanic_coral
+
+binary_run:
+	go build ./src/main.go && ./main -a 127.0.0.1:8080
+
+dep:
+	go get -u github.com/valyala/fasthttp

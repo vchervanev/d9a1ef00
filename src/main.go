@@ -1,13 +1,16 @@
 package main
 
-import ("net/http"; "fmt"; "runtime")
+import (
+	"flag"
 
-func DumbHandler(writer http.ResponseWriter, request *http.Request) {
-	writer.Write([]byte("Hello, I'm Web Server!"))
-	fmt.Println("OS: %s\nArchitecture: %s\n", runtime.GOOS, runtime.GOARCH)
-}
+	"./web"
+)
 
 func main() {
-	http.HandleFunc("/", DumbHandler)
-	http.ListenAndServe(":80", nil)
+	address := flag.String("a", "127.0.0.1:80", "web server binding address")
+	flag.Parse()
+
+	server := web.Server{Address: *address}
+
+	server.Start()
 }
