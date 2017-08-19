@@ -13,6 +13,10 @@ type Lexeme struct {
 	GetValue value.Reader // return value, e.g. remove quotetion marks
 }
 
+func IsAttribute(lex Lexeme) bool {
+	return lex.Id == attributeName.Id
+}
+
 func GetNext(lex Lexeme, json []byte, pos int) Lexeme {
 	for _, next := range transitions[lex.Id] {
 		if next.IsStart(json, pos, pos) {
@@ -73,7 +77,7 @@ var attributeValueNull = Lexeme{
 	IsPart:  position.True,
 	IsDone:  position.IsLiteralNull,
 
-	GetValue: value.Constant,
+	GetValue: value.Null,
 }
 
 var attributeValueNumber = Lexeme{

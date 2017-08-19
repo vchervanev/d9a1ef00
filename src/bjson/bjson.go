@@ -8,7 +8,7 @@ import (
 // var log = fmt.Printf
 func log(format string, a ...interface{}) {}
 
-func Parse(json []byte) (result [][]byte) {
+func Parse(json []byte) (names [][]byte, values [][]byte) {
 	start := 0
 	pos := 0
 	lex := lexeme.Outside
@@ -27,9 +27,14 @@ func Parse(json []byte) (result [][]byte) {
 					if isPart {
 						delta = 1
 					}
-					log("%v\n\n", string(lex.GetValue(json[start:pos+delta])))
-					// TODO format return result
-					result = append(result, lex.GetValue(json[start:pos+delta]))
+					value := lex.GetValue(json[start : pos+delta])
+					log("%v\n\n", string(value))
+
+					if lexeme.IsAttribute(lex) {
+						names = append(names, value)
+					} else {
+						values = append(values, value)
+					}
 				}
 			}
 			if !isPart && !position.IsSeparator(json, pos, pos) {
