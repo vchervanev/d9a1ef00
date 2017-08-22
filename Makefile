@@ -18,3 +18,6 @@ binary_run:
 
 dep:
 	go get -u github.com/valyala/fasthttp
+
+post_example_user:
+	curl -H "Content-Type: application/json" --data @data/example_new_user.json http://localhost:8080/users/new
