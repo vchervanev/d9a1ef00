@@ -1,7 +1,7 @@
 package entity
 
 type Definition struct {
-	EntityName     string
+	EntityType     string
 	AttributeNames [][]byte
 }
 

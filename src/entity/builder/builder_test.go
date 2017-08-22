@@ -26,7 +26,7 @@ var value4 = []byte("value4")
 var value5 = []byte("value5")
 
 var definition = &entity.Definition{
-	EntityName:     "test",
+	EntityType:     "test",
 	AttributeNames: [][]byte{attr1, attr2, attr3},
 }
 
