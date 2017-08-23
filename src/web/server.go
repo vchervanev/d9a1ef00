@@ -4,6 +4,9 @@ import (
 	"log"
 
 	"github.com/valyala/fasthttp"
+
+	"../entity/model/user"
+	"../entity/storage"
 )
 
 // Server to handle incoming requests
@@ -32,12 +35,15 @@ func eql(bytes1, bytes2 []byte) bool {
 	return true
 }
 
+var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user"})
+
 var usersNew = []byte("/users/new")
 
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	log.Printf("%s %s", ctx.Method(), ctx.Path())
 	if eql(ctx.Path(), usersNew) {
-		log.Printf("New user: %s", string(ctx.PostBody()))
+		userRecord := user.BuildUser(ctx.PostBody())
+		db.Add(userRecord)
 	} else {
 		log.Println("unknowns path")
 	}
