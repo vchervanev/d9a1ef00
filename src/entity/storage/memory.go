@@ -20,14 +20,14 @@ func (*MemoryServiceFactoryImpl) CreateMemoryService(typeNames []string) (result
 	return
 }
 
-func (m *MemoryService) add(record entity.Record) {
+func (m *MemoryService) Add(record *entity.Record) {
 	m.data[record.Definition.EntityType][record.Id()] = record
 }
 
-func (m *MemoryService) update(record entity.Record) {
+func (m *MemoryService) Update(record entity.Record) {
 	// TODO update new fields
 }
 
-func (m *MemoryService) get(entityType string, id int) entity.Record {
+func (m *MemoryService) Get(entityType string, id int) *entity.Record {
 	return m.data[entityType][id]
 }
