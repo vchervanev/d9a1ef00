@@ -2,7 +2,7 @@ package storage
 
 import "../../entity"
 
-type RecordMap map[int]entity.Record
+type RecordMap map[int]*entity.Record
 type Database map[string]RecordMap
 
 type StorageService interface {
