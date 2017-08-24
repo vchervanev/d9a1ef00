@@ -1,9 +1,12 @@
 package web
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/valyala/fasthttp"
+
+	"./tools/bytes"
 
 	"../entity/model/user"
 	"../entity/storage"
@@ -22,28 +25,27 @@ func (s Server) Start() {
 	}
 }
 
-// TODO move me
-func eql(bytes1, bytes2 []byte) bool {
-	if len(bytes1) != len(bytes2) {
-		return false
-	}
-	for i, b := range bytes1 {
-		if b != bytes2[i] {
-			return false
-		}
-	}
-	return true
-}
-
 var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user"})
 
 var usersNew = []byte("/users/new")
 
+var usersGet = []byte("/users/")
+
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	log.Printf("%s %s", ctx.Method(), ctx.Path())
-	if eql(ctx.Path(), usersNew) {
+	if bytes.Eql(ctx.Path(), usersNew) {
 		userRecord := user.BuildUser(ctx.PostBody())
 		db.Add(userRecord)
+	} else if bytes.StartsWith(ctx.Path(), usersGet) {
+		id := bytes.GetId(ctx.Path(), '/')
+		user := db.Get("user", id)
+		if user != nil {
+			for _, bytes := range user.Data {
+				ctx.Write(bytes)
+			}
+		} else {
+			fmt.Fprintln(ctx, "not found")
+		}
 	} else {
 		log.Println("unknowns path")
 	}
