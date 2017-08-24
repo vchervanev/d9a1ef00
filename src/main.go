@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	address := flag.String("a", "127.0.0.1:80", "web server binding address")
+	address := flag.String("a", "0.0.0.0:80", "web server binding address")
 	flag.Parse()
 
 	server := web.Server{Address: *address}
