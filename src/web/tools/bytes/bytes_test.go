@@ -17,7 +17,7 @@ func TestEql(t *testing.T) {
 	}
 }
 
-func TestStartsWith(t *testing.T) { //bytes, prefix []byte) bool
+func TestStartsWith(t *testing.T) {
 	b1 := []byte("aaa/bbb/")
 	prefix := []byte("aaa/b")
 
