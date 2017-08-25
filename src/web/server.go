@@ -1,14 +1,15 @@
 package web
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/valyala/fasthttp"
 
 	"./tools/bytes"
 
+	"../entity/model/location"
 	"../entity/model/user"
+	"../entity/model/visit"
 	"../entity/storage"
 )
 
@@ -25,26 +26,52 @@ func (s Server) Start() {
 	}
 }
 
-var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user"})
+var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user", "location", "visit"})
 
 var usersNew = []byte("/users/new")
+var locationsNew = []byte("/locations/new")
+var visitsNew = []byte("/visits/new")
 
 var usersGet = []byte("/users/")
+var locationsGet = []byte("/locations/")
+var visitsGet = []byte("/visits/")
+
+var emptyResponse = []byte("{}")
 
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	log.Printf("%s %s", ctx.Method(), ctx.Path())
 	if bytes.Eql(ctx.Path(), usersNew) {
 		userRecord := user.BuildUser(ctx.PostBody())
 		db.Add(userRecord)
-	} else if bytes.StartsWith(ctx.Path(), usersGet) {
+		ctx.Write(emptyResponse)
+	} else if bytes.Eql(ctx.Path(), locationsNew) {
+		locationRecord := location.BuildLocation(ctx.PostBody())
+		db.Add(locationRecord)
+		ctx.Write(emptyResponse)
+	} else if bytes.Eql(ctx.Path(), visitsNew) {
+		visitRecord := visit.BuildVisit(ctx.PostBody())
+		db.Add(visitRecord)
+		ctx.Write(emptyResponse)
+	} else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
 		id := bytes.GetId(ctx.Path(), '/')
-		user := db.Get("user", id)
+		c := ctx.Path()[1]
+
+		entityType := ""
+
+		if c == 'u' {
+			entityType = "user"
+		} else if c == 'l' {
+			entityType = "location"
+		} else {
+			entityType = "visit"
+		}
+		user := db.Get(entityType, id)
 		if user != nil {
 			user.WriteJSON(ctx)
 		} else {
-			fmt.Fprintln(ctx, "not found")
+			ctx.SetStatusCode(fasthttp.StatusNotFound)
 		}
 	} else {
-		log.Println("unknowns path")
+		ctx.SetStatusCode(fasthttp.StatusNotFound)
 	}
 }

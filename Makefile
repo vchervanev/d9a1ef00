@@ -21,3 +21,11 @@ dep:
 
 post_example_user:
 	curl -H "Content-Type: application/json" --data @data/example_new_user.json http://localhost:8080/users/new
+
+post_example_visit:
+	curl -H "Content-Type: application/json" --data @data/example_new_visit.json http://localhost:8080/visits/new
+
+post_example_location:
+	curl -H "Content-Type: application/json" --data @data/example_new_location.json http://localhost:8080/locations/new
+
+post_all: post_example_user post_example_visit post_example_location
