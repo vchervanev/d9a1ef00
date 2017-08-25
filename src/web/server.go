@@ -40,9 +40,7 @@ func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 		id := bytes.GetId(ctx.Path(), '/')
 		user := db.Get("user", id)
 		if user != nil {
-			for _, bytes := range user.Data {
-				ctx.Write(bytes)
-			}
+			user.WriteJSON(ctx)
 		} else {
 			fmt.Fprintln(ctx, "not found")
 		}
