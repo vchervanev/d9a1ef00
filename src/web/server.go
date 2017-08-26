@@ -42,6 +42,7 @@ func parse(record []byte, filter byte) {
 
 // load zipped data
 func (s Server) Preload(path string) {
+	log.Printf("Preloading from %s\n", path)
 	zip.LoadObjects(path, []byte("ulv"), parse)
 	log.Println(db.Info())
 }

@@ -25,6 +25,7 @@ func LoadObjects(filename string, sequence []byte, handler RecordHandler) {
 			if file.FileHeader.Name[0] != filter {
 				continue
 			}
+			log.Printf("Processing %v... ", file.FileHeader.Name)
 			rc, _ := file.Open()
 			buf := bufio.NewReader(rc)
 			buf.ReadBytes('[')
@@ -40,6 +41,7 @@ func LoadObjects(filename string, sequence []byte, handler RecordHandler) {
 			}
 
 			rc.Close()
+			log.Println("Done")
 		}
 	}
 }
