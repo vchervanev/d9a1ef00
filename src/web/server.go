@@ -5,7 +5,7 @@ import (
 
 	"github.com/valyala/fasthttp"
 
-	"./tools/bytes"
+	"../tools/bytes"
 
 	"../entity/model/location"
 	"../entity/model/user"
