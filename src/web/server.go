@@ -11,6 +11,7 @@ import (
 	"../entity/model/user"
 	"../entity/model/visit"
 	"../entity/storage"
+	"../zip"
 )
 
 // Server to handle incoming requests
@@ -24,6 +25,25 @@ func (s Server) Start() {
 	if err := fasthttp.ListenAndServe(s.Address, s.requestHandler); err != nil {
 		log.Fatalf("error in ListenAndServe: %s", err)
 	}
+}
+
+func parse(record []byte, filter byte) {
+	switch filter {
+	case 'u':
+		db.Add(user.BuildUser(record))
+	case 'l':
+		db.Add(location.BuildLocation(record))
+	case 'v':
+		db.Add(visit.BuildVisit(record))
+	default:
+		log.Fatalf("Unknowns type %v", filter)
+	}
+}
+
+// load zipped data
+func (s Server) Preload(path string) {
+	zip.LoadObjects(path, []byte("ulv"), parse)
+	log.Println(db.Info())
 }
 
 var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user", "location", "visit"})
