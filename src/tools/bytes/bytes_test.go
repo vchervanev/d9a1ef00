@@ -31,7 +31,7 @@ func TestStartsWith(t *testing.T) {
 	}
 }
 
-func TestGetId(t *testing.T) { //bytes []byte, separator byte) int
+func TestGetId(t *testing.T) {
 	b1 := []byte("aaa/bbb/432")
 	id := GetId(b1, '/')
 	if id != 432 {
@@ -42,5 +42,31 @@ func TestGetId(t *testing.T) { //bytes []byte, separator byte) int
 	id = GetId(b1, '/')
 	if id != 0 {
 		t.Error("expected 0 but got", id)
+	}
+}
+
+func TestIndexOfPositive(t *testing.T) {
+	item1 := []byte("value1")
+	item2 := []byte("value2")
+	item3 := []byte("value3")
+	target := []byte("value2")
+	items := [][]byte{item1, item2, item3}
+
+	result := IndexOf(items, target)
+	if result != 1 {
+		t.Error("Expected 1 but got", result)
+	}
+}
+
+func TestIndexOfNegative(t *testing.T) {
+	item1 := []byte("value1")
+	item2 := []byte("value2")
+	item3 := []byte("value3")
+	target := []byte("value9")
+	items := [][]byte{item1, item2, item3}
+
+	result := IndexOf(items, target)
+	if result != -1 {
+		t.Error("Expected -1 but got", result)
 	}
 }

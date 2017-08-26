@@ -31,3 +31,23 @@ func GetId(bytes []byte, separator byte) int {
 	}
 	return result
 }
+
+// TODO use indexed prefixes
+func IndexOf(bytes [][]byte, value []byte) int {
+	for i, candidate := range bytes {
+		if len(candidate) != len(value) {
+			continue
+		}
+		equal := true
+		for j, v := range candidate {
+			if v != value[j] {
+				equal = false
+				break
+			}
+		}
+		if equal {
+			return i
+		}
+	}
+	return -1
+}
