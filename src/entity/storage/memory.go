@@ -1,5 +1,6 @@
 package storage
 
+import "fmt"
 import "../../entity"
 
 // MemoryService implements StorageService
@@ -18,6 +19,14 @@ func (*MemoryServiceFactoryImpl) CreateMemoryService(typeNames []string) (result
 	}
 
 	return
+}
+
+func (m *MemoryService) Info() string {
+	stat := ""
+	for key, records := range m.data {
+		stat += fmt.Sprintf("%s: %v ", key, len(records))
+	}
+	return fmt.Sprintf("DB INFO[ %v]", stat)
 }
 
 func (m *MemoryService) Add(record *entity.Record) {
