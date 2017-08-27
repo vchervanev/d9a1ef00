@@ -4,7 +4,6 @@ import (
 	"archive/zip"
 	"bufio"
 	"log"
-	"runtime"
 )
 
 type RecordHandler func(content []byte, filter byte)
@@ -26,7 +25,9 @@ func LoadObjects(filename string, sequence []byte, handler RecordHandler) {
 			if file.FileHeader.Name[0] != filter {
 				continue
 			}
-			log.Printf("Processing %v... ", file.FileHeader.Name)
+			if i == 0 || i%25 == 0 {
+				log.Printf("Processing %v... ", file.FileHeader.Name)
+			}
 			rc, _ := file.Open()
 			buf := bufio.NewReader(rc)
 			buf.ReadBytes('[')
@@ -42,11 +43,6 @@ func LoadObjects(filename string, sequence []byte, handler RecordHandler) {
 			}
 
 			rc.Close()
-			log.Println("Done")
-			if i%25 == 0 {
-				runtime.GC()
-			}
 		}
-		runtime.GC()
 	}
 }
