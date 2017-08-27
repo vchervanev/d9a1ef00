@@ -49,7 +49,7 @@ var attributeName = Lexeme{
 	IsPart:  position.True,
 	IsDone:  position.IsString,
 
-	GetValue: value.String,
+	GetValue: value.LightString,
 }
 
 var attributeSeparator = Lexeme{
