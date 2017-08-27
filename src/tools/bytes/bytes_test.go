@@ -70,3 +70,22 @@ func TestIndexOfNegative(t *testing.T) {
 		t.Error("Expected -1 but got", result)
 	}
 }
+func TestIndexOfSubarray(t *testing.T) {
+	source := []byte("initialvalueishere")
+	value := []byte("value")
+
+	result := IndexOfSubarray(source, value)
+	if result != 7 {
+		t.Error("Expected 7 but got", result)
+	}
+}
+
+func TestIndexOfSubarrayNegative(t *testing.T) {
+	source := []byte("initialvalueishere")
+	value := []byte("value1")
+
+	result := IndexOfSubarray(source, value)
+	if result != -1 {
+		t.Error("Expected -1 but got", result)
+	}
+}

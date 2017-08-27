@@ -32,6 +32,24 @@ func GetId(bytes []byte, separator byte) int {
 	return result
 }
 
+func IndexOfSubarray(source []byte, value []byte) int {
+	max_start := len(source) - len(value)
+	for i := 0; i < max_start; i++ {
+		equal := true
+		for j := 0; j < len(value); j++ {
+			if source[i+j] != value[j] {
+				equal = false
+				break
+			}
+		}
+
+		if equal {
+			return i
+		}
+	}
+	return -1
+}
+
 // TODO use indexed prefixes
 func IndexOf(bytes [][]byte, value []byte) int {
 	for i, candidate := range bytes {
