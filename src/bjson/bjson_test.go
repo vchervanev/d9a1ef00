@@ -5,8 +5,12 @@ import "testing"
 type hash map[string]string
 
 func assertParsing(input string, expected hash, t *testing.T) {
-	names, values := Parse([]byte(input))
-	for index, bName := range names {
+	var attributes [][]byte
+	for name, _ := range expected {
+		attributes = append(attributes, []byte(name))
+	}
+	_, values := Parse([]byte(input), attributes)
+	for index, bName := range attributes {
 		name := string(bName)
 		value := string(values[index])
 		expectedValue := expected[name]
@@ -20,14 +24,9 @@ func assertParsing(input string, expected hash, t *testing.T) {
 
 		}
 	}
-	if len(names) != len(values) {
+	if len(values) != len(expected) {
 		t.Error(
-			"Odd names/values combination", len(names), len(values),
-		)
-	}
-	if len(names) != len(expected) {
-		t.Error(
-			"Odd attributes/ expected values combination", len(names), len(expected),
+			"Odd attributes/ expected values combination", len(values), len(expected),
 		)
 	}
 }
@@ -88,16 +87,16 @@ func assertDDNull(names, values [][]byte, t *testing.T) {
 }
 
 func TestNullAndSeparators(t *testing.T) {
-	names, values := Parse([]byte(" { \"dd\" : null } "))
+	names, values := Parse([]byte(" { \"dd\" : null } "), [][]byte{[]byte("dd")})
 	assertDDNull(names, values, t)
 }
 func TestNull(t *testing.T) {
-	names, values := Parse([]byte("{\"dd\":null}"))
+	names, values := Parse([]byte("{\"dd\":null}"), [][]byte{[]byte("dd")})
 	assertDDNull(names, values, t)
 }
 
 func TestPairAndSeparators(t *testing.T) {
-	names, values := Parse([]byte(" { \"dd\" : null,\n\"ff\": \"QQQ\" } "))
+	names, values := Parse([]byte(" { \"dd\" : null,\n\"ff\": \"QQQ\" } "), [][]byte{[]byte("dd"), []byte("ff")})
 	assertDDNull(names[0:1], values[0:1], t)
 	if string(names[1]) != "ff" || string(values[1]) != "QQQ" {
 		t.Error("another error")

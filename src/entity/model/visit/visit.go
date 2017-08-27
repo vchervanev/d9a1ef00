@@ -17,7 +17,7 @@ var VisitDefinition = entity.Definition{
 }
 
 func BuildVisit(json []byte) *entity.Record {
-	var names, values = bjson.Parse(json)
+	var names, values = bjson.Parse(json, VisitDefinition.AttributeNames)
 	record := builder.Build(&VisitDefinition, names, values)
 	return record
 }

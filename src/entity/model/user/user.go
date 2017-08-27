@@ -18,7 +18,7 @@ var UserDefinition = entity.Definition{
 }
 
 func BuildUser(json []byte) *entity.Record {
-	var names, values = bjson.Parse(json)
+	var names, values = bjson.Parse(json, UserDefinition.AttributeNames)
 	record := builder.Build(&UserDefinition, names, values)
 	return record
 }

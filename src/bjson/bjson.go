@@ -1,6 +1,7 @@
 package bjson
 
 import (
+	"../tools/bytes"
 	"./lexeme"
 	"./position"
 )
@@ -8,11 +9,14 @@ import (
 // var log = fmt.Printf
 func log(format string, a ...interface{}) {}
 
-func Parse(json []byte) (names [][]byte, values [][]byte) {
+// names not used anymore!
+func Parse(json []byte, attributes [][]byte) (names [][]byte, values [][]byte) {
 	start := 0
 	pos := 0
 	lex := lexeme.Outside
 	active := false
+	values = make([][]byte, len(attributes))
+	var currentName []byte
 	for pos < len(json) {
 		log("Pos = %v, active = %v, id = %v\n", pos, active, lex.Name)
 		if active {
@@ -31,9 +35,9 @@ func Parse(json []byte) (names [][]byte, values [][]byte) {
 					log("%v\n\n", string(value))
 
 					if lexeme.IsAttribute(lex) {
-						names = append(names, value)
+						currentName = value
 					} else {
-						values = append(values, value)
+						values[bytes.IndexOf(attributes, currentName)] = value
 					}
 				}
 			}
