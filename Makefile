@@ -25,6 +25,9 @@ dep:
 post_example_user:
 	curl -H "Content-Type: application/json" --data @data/example_new_user.json http://localhost:8080/users/new
 
+post_update_user:
+	curl -H "Content-Type: application/json" --data @data/example_upd_user.json http://localhost:8080/users/123
+
 post_example_visit:
 	curl -H "Content-Type: application/json" --data @data/example_new_visit.json http://localhost:8080/visits/new
 

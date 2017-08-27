@@ -7,6 +7,7 @@ import (
 
 	"../tools/bytes"
 
+	"../entity/model"
 	"../entity/model/location"
 	"../entity/model/user"
 	"../entity/model/visit"
@@ -21,6 +22,7 @@ type Server struct {
 
 // Start method starts http listener
 func (s Server) Start() {
+	log.Println("it's me mux 2")
 	log.Printf("Starting at %s\n", s.Address)
 	if err := fasthttp.ListenAndServe(s.Address, s.requestHandler); err != nil {
 		log.Fatalf("error in ListenAndServe: %s", err)
@@ -59,41 +61,65 @@ var visitsGet = []byte("/visits/")
 
 var emptyResponse = []byte("{}")
 
+var postMethod = []byte("POST")
+
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	// TODO only in dev
 	// log.Printf("%s %s", ctx.Method(), ctx.Path())
-	if bytes.Eql(ctx.Path(), usersNew) {
-		userRecord := user.BuildUser(ctx.PostBody())
-		db.Add(userRecord)
-		ctx.Write(emptyResponse)
-	} else if bytes.Eql(ctx.Path(), locationsNew) {
-		locationRecord := location.BuildLocation(ctx.PostBody())
-		db.Add(locationRecord)
-		ctx.Write(emptyResponse)
-	} else if bytes.Eql(ctx.Path(), visitsNew) {
-		visitRecord := visit.BuildVisit(ctx.PostBody())
-		db.Add(visitRecord)
-		ctx.Write(emptyResponse)
-	} else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
-		id := bytes.GetId(ctx.Path(), '/')
-		c := ctx.Path()[1]
 
-		entityType := ""
+	if bytes.Eql(postMethod, ctx.Method()) {
+		if bytes.Eql(ctx.Path(), usersNew) {
+			userRecord := user.BuildUser(ctx.PostBody())
+			db.Add(userRecord)
+			ctx.Write(emptyResponse)
+		} else if bytes.Eql(ctx.Path(), locationsNew) {
+			locationRecord := location.BuildLocation(ctx.PostBody())
+			db.Add(locationRecord)
+			ctx.Write(emptyResponse)
+		} else if bytes.Eql(ctx.Path(), visitsNew) {
+			visitRecord := visit.BuildVisit(ctx.PostBody())
+			db.Add(visitRecord)
+			ctx.Write(emptyResponse)
+		} else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
+			id := bytes.GetId(ctx.Path(), '/')
 
-		if c == 'u' {
-			entityType = "user"
-		} else if c == 'l' {
-			entityType = "location"
-		} else {
-			entityType = "visit"
-		}
-		user := db.Get(entityType, id)
-		if user != nil {
-			user.WriteJSON(ctx)
+			record := db.Get(entityType(ctx.Path()), id)
+			if record != nil {
+				model.UpdateRecord(record, ctx.PostBody())
+				db.Update(*record)
+				ctx.Write(emptyResponse)
+			} else {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}
+
 		} else {
 			ctx.SetStatusCode(fasthttp.StatusNotFound)
 		}
 	} else {
-		ctx.SetStatusCode(fasthttp.StatusNotFound)
+		if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
+			id := bytes.GetId(ctx.Path(), '/')
+			user := db.Get(entityType(ctx.Path()), id)
+			if user != nil {
+				user.WriteJSON(ctx)
+			} else {
+				ctx.SetStatusCode(fasthttp.StatusNotFound)
+			}
+		} else {
+			ctx.SetStatusCode(fasthttp.StatusNotFound)
+		}
 	}
+}
+
+func entityType(path []byte) string {
+	c := path[1]
+	entityType := ""
+
+	if c == 'u' {
+		entityType = "user"
+	} else if c == 'l' {
+		entityType = "location"
+	} else {
+		entityType = "visit"
+	}
+	return entityType
 }
