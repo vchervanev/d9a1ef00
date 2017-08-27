@@ -60,7 +60,8 @@ var visitsGet = []byte("/visits/")
 var emptyResponse = []byte("{}")
 
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
-	log.Printf("%s %s", ctx.Method(), ctx.Path())
+	// TODO only in dev
+	// log.Printf("%s %s", ctx.Method(), ctx.Path())
 	if bytes.Eql(ctx.Path(), usersNew) {
 		userRecord := user.BuildUser(ctx.PostBody())
 		db.Add(userRecord)
