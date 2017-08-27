@@ -22,7 +22,6 @@ type Server struct {
 
 // Start method starts http listener
 func (s Server) Start() {
-	log.Println("it's me mux 2")
 	log.Printf("Starting at %s\n", s.Address)
 	if err := fasthttp.ListenAndServe(s.Address, s.requestHandler); err != nil {
 		log.Fatalf("error in ListenAndServe: %s", err)
@@ -63,12 +62,17 @@ var emptyResponse = []byte("{}")
 
 var postMethod = []byte("POST")
 
+var nullValue = []byte("\": null")
+
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	// TODO only in dev
 	// log.Printf("%s %s", ctx.Method(), ctx.Path())
 
 	if bytes.Eql(postMethod, ctx.Method()) {
-		if bytes.Eql(ctx.Path(), usersNew) {
+		if bytes.IndexOfSubarray(ctx.PostBody(), nullValue) != -1 {
+			ctx.SetStatusCode(fasthttp.StatusBadRequest)
+			ctx.Write(emptyResponse)
+		} else if bytes.Eql(ctx.Path(), usersNew) {
 			userRecord := user.BuildUser(ctx.PostBody())
 			db.Add(userRecord)
 			ctx.Write(emptyResponse)
