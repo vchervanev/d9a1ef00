@@ -16,6 +16,9 @@ push:
 binary_run:
 	go build ./src/main.go && ./main -a 127.0.0.1:8080 -z data/data.zip
 
+binary_run_full:
+	go build ./src/main.go && ./main -a 127.0.0.1:8080 -z data/data_full.zip
+
 dep:
 	go get -u github.com/valyala/fasthttp
 

@@ -47,7 +47,7 @@ func (s Server) Preload(path string) {
 	log.Println(db.Info())
 }
 
-var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user", "location", "visit"})
+var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user", "location", "visit"}, []int{1000100, 761400, 10000800})
 
 var usersNew = []byte("/users/new")
 var locationsNew = []byte("/locations/new")

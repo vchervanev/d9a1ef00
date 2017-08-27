@@ -12,10 +12,10 @@ var MemoryServiceFactory MemoryServiceFactoryImpl
 
 type MemoryServiceFactoryImpl struct{}
 
-func (*MemoryServiceFactoryImpl) CreateMemoryService(typeNames []string) (result MemoryService) {
+func (*MemoryServiceFactoryImpl) CreateMemoryService(typeNames []string, sizes []int) (result MemoryService) {
 	result.data = make(Database, len(typeNames))
-	for _, typeName := range typeNames {
-		result.data[typeName] = make(RecordMap, 10000)
+	for i, typeName := range typeNames {
+		result.data[typeName] = make(RecordMap, sizes[i])
 	}
 
 	return
