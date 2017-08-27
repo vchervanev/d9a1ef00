@@ -63,7 +63,7 @@ func Parse(json []byte, attributes [][]byte) (names [][]byte, values [][]byte) {
 
 		pos = pos + 1
 	}
-	if lex.Id != lexeme.End.Id {
+	if lex.Id != lexeme.End.Id && lex.Id != lexeme.Outside.Id {
 		panic("invalid end lexeme")
 	}
 
