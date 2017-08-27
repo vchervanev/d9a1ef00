@@ -67,21 +67,22 @@ var nullValue = []byte("\": null")
 func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 	// TODO only in dev
 	// log.Printf("%s %s", ctx.Method(), ctx.Path())
+	postBody := ctx.PostBody()
 
 	if bytes.Eql(postMethod, ctx.Method()) {
-		if bytes.IndexOfSubarray(ctx.PostBody(), nullValue) != -1 {
+		if len(postBody) < 3 || bytes.IndexOfSubarray(postBody, nullValue) != -1 {
 			ctx.SetStatusCode(fasthttp.StatusBadRequest)
 			ctx.Write(emptyResponse)
 		} else if bytes.Eql(ctx.Path(), usersNew) {
-			userRecord := user.BuildUser(ctx.PostBody())
+			userRecord := user.BuildUser(postBody)
 			db.Add(userRecord)
 			ctx.Write(emptyResponse)
 		} else if bytes.Eql(ctx.Path(), locationsNew) {
-			locationRecord := location.BuildLocation(ctx.PostBody())
+			locationRecord := location.BuildLocation(postBody)
 			db.Add(locationRecord)
 			ctx.Write(emptyResponse)
 		} else if bytes.Eql(ctx.Path(), visitsNew) {
-			visitRecord := visit.BuildVisit(ctx.PostBody())
+			visitRecord := visit.BuildVisit(postBody)
 			db.Add(visitRecord)
 			ctx.Write(emptyResponse)
 		} else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
@@ -89,7 +90,7 @@ func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 
 			record := db.Get(entityType(ctx.Path()), id)
 			if record != nil {
-				model.UpdateRecord(record, ctx.PostBody())
+				model.UpdateRecord(record, postBody)
 				db.Update(*record)
 				ctx.Write(emptyResponse)
 			} else {
