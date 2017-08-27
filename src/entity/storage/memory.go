@@ -1,7 +1,11 @@
 package storage
 
-import "fmt"
-import "../../entity"
+import (
+	"fmt"
+	"sync"
+
+	"../../entity"
+)
 
 // MemoryService implements StorageService
 type MemoryService struct {
@@ -29,8 +33,12 @@ func (m *MemoryService) Info() string {
 	return fmt.Sprintf("DB INFO[ %v]", stat)
 }
 
+var writeMutex sync.Mutex
+
 func (m *MemoryService) Add(record *entity.Record) {
+	writeMutex.Lock()
 	m.data[record.Definition.EntityType][record.Id()] = record
+	writeMutex.Unlock()
 }
 
 func (m *MemoryService) Update(record entity.Record) {
