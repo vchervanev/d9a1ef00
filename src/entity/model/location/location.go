@@ -17,7 +17,7 @@ var LocationDefinition = entity.Definition{
 }
 
 func BuildLocation(json []byte) *entity.Record {
-	var names, values = bjson.Parse(json, LocationDefinition.AttributeNames)
-	record := builder.Build(&LocationDefinition, names, values)
+	var _, values = bjson.Parse(json, LocationDefinition.AttributeNames)
+	record := builder.Build(&LocationDefinition, values)
 	return record
 }
