@@ -1,18 +1,18 @@
 package web
 
 import (
+	// "log"
+
 	"log"
 
 	"github.com/valyala/fasthttp"
 
-	"../tools/bytes"
+	"../bjson"
 
 	"../entity/model"
-	"../entity/model/location"
-	"../entity/model/user"
-	"../entity/model/visit"
 	"../entity/storage"
-	"../zip"
+	"../tools/bytes"
+	// "../zip"
 )
 
 // Server to handle incoming requests
@@ -29,26 +29,26 @@ func (s Server) Start() {
 }
 
 func parse(record []byte, filter byte) {
-	switch filter {
-	case 'u':
-		db.Add(user.BuildUser(record))
-	case 'l':
-		db.Add(location.BuildLocation(record))
-	case 'v':
-		db.Add(visit.BuildVisit(record))
-	default:
-		log.Fatalf("Unknowns type %v", filter)
-	}
+	// switch filter {
+	// case 'u':
+	// 	db.Add(user.BuildUser(record))
+	// case 'l':
+	// 	db.Add(location.BuildLocation(record))
+	// case 'v':
+	// 	db.Add(visit.BuildVisit(record))
+	// default:
+	// 	log.Fatalf("Unknowns type %v", filter)
+	// }
 }
 
 // load zipped data
 func (s Server) Preload(path string) {
-	log.Printf("Preloading from %s\n", path)
-	zip.LoadObjects(path, []byte("ulv"), parse)
-	log.Println(db.Info())
+	// log.Printf("Preloading from %s\n", path)
+	// zip.LoadObjects(path, []byte("ulv"), parse)
+	// log.Println(db.Info())
 }
 
-var db = storage.MemoryServiceFactory.CreateMemoryService([]string{"user", "location", "visit"}, []int{1000100, 761400, 10000800})
+var db = storage.MemoryServiceFactory.CreateMemoryService([]model.Model{model.LocationFactory, model.LocationFactory, model.LocationFactory}, []int{1000100, 761400, 10000800})
 
 var usersNew = []byte("/users/new")
 var locationsNew = []byte("/locations/new")
@@ -73,58 +73,53 @@ func (s Server) requestHandler(ctx *fasthttp.RequestCtx) {
 		if len(postBody) < 3 || bytes.IndexOfSubarray(postBody, nullValue) != -1 {
 			ctx.SetStatusCode(fasthttp.StatusBadRequest)
 			ctx.Write(emptyResponse)
-		} else if bytes.Eql(ctx.Path(), usersNew) {
-			userRecord := user.BuildUser(postBody)
-			db.Add(userRecord)
+		} else if bytes.Eql(ctx.Path(), usersNew) || bytes.Eql(ctx.Path(), locationsNew) || bytes.Eql(ctx.Path(), visitsNew) {
+			m := findModel(ctx.Path())
+			var _, values = bjson.Parse(ctx.PostBody(), m.AttributeNames())
+			instance := m.Allocate(values)
+			db.Add(instance)
 			ctx.Write(emptyResponse)
-		} else if bytes.Eql(ctx.Path(), locationsNew) {
-			locationRecord := location.BuildLocation(postBody)
-			db.Add(locationRecord)
-			ctx.Write(emptyResponse)
-		} else if bytes.Eql(ctx.Path(), visitsNew) {
-			visitRecord := visit.BuildVisit(postBody)
-			db.Add(visitRecord)
-			ctx.Write(emptyResponse)
-		} else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
-			id := bytes.GetId(ctx.Path(), '/')
-
-			record := db.Get(entityType(ctx.Path()), id)
-			if record != nil {
-				model.UpdateRecord(record, postBody)
-				db.Update(*record)
-				ctx.Write(emptyResponse)
-			} else {
-				ctx.SetStatusCode(fasthttp.StatusNotFound)
-			}
-
-		} else {
-			ctx.SetStatusCode(fasthttp.StatusNotFound)
 		}
-	} else {
-		if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
-			id := bytes.GetId(ctx.Path(), '/')
-			user := db.Get(entityType(ctx.Path()), id)
-			if user != nil {
-				user.WriteJSON(ctx)
-			} else {
-				ctx.SetStatusCode(fasthttp.StatusNotFound)
-			}
-		} else {
-			ctx.SetStatusCode(fasthttp.StatusNotFound)
-		}
+		// 	else if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
+		// 		id := bytes.GetId(ctx.Path(), '/')
+
+		// 		record := db.Get(findModel(ctx.Path()), id)
+		// 		if record != nil {
+		// 			model.UpdateRecord(record, postBody)
+		// 			db.Update(*record)
+		// 			ctx.Write(emptyResponse)
+		// 		} else {
+		// 			ctx.SetStatusCode(fasthttp.StatusNotFound)
+		// 		}
+
+		// 	} else {
+		// 		ctx.SetStatusCode(fasthttp.StatusNotFound)
+		// 	}
+		// } else {
+		// 	if bytes.StartsWith(ctx.Path(), usersGet) || bytes.StartsWith(ctx.Path(), locationsGet) || bytes.StartsWith(ctx.Path(), visitsGet) {
+		// 		id := bytes.GetId(ctx.Path(), '/')
+		// 		user := db.Get(findModel(ctx.Path()), id)
+		// 		if user != nil {
+		// 			user.WriteJSON(ctx)
+		// 		} else {
+		// 			ctx.SetStatusCode(fasthttp.StatusNotFound)
+		// 		}
+		// 	} else {
+		// 		ctx.SetStatusCode(fasthttp.StatusNotFound)
+		// 	}
 	}
 }
 
-func entityType(path []byte) string {
+func findModel(path []byte) *model.Model {
 	c := path[1]
-	entityType := ""
+	var result *model.Model
 
 	if c == 'u' {
-		entityType = "user"
+		// result = "user"
 	} else if c == 'l' {
-		entityType = "location"
+		result = model.LocationFactory
 	} else {
-		entityType = "visit"
+		// result = "visit"
 	}
-	return entityType
+	return result
 }
