@@ -7,6 +7,9 @@ import (
 	"../../entity"
 )
 
+type RecordMap map[int]*entity.Record
+type Database map[string]RecordMap
+
 // MemoryService implements StorageService
 type MemoryService struct {
 	data Database
