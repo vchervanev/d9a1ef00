@@ -3,10 +3,6 @@ package builder
 import "testing"
 import "../../entity"
 
-// func Build(definition *entity.Definition, names, values [][]byte) (result entity.Record) {}
-
-// func Update(record *entity.Record, names, values [][]byte) {}
-
 func bytesEql(bytes1, bytes2 []byte, t *testing.T) {
 	s1 := string(bytes1)
 	s2 := string(bytes2)
