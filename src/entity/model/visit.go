@@ -1,4 +1,4 @@
-package visit
+package model
 
 import "../../../entity"
 import "../../builder"

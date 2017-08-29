@@ -1,4 +1,4 @@
-package location
+package model
 
 import "../../../entity"
 import "../../builder"
@@ -14,6 +14,10 @@ var LocationDefinition = entity.Definition{
 	EntityType:     "location",
 	AttributeNames: [][]byte{ID, PLACE, COUNTRY, CITY, DISTANCE},
 	AttributeTypes: []byte{'n', 's', 's', 's', 'n'},
+}
+
+var LocationModel struct {
+	RawModel
 }
 
 func BuildLocation(json []byte) *entity.Record {
