@@ -1,6 +1,14 @@
 package storage
 
-import "../../entity"
+import (
+	"fmt"
+	"sync"
+
+	"../model"
+)
+
+type RecordMap map[int]*model.Instance
+type Database map[model.Model]RecordMap
 
 // MemoryService implements StorageService
 type MemoryService struct {
@@ -11,23 +19,37 @@ var MemoryServiceFactory MemoryServiceFactoryImpl
 
 type MemoryServiceFactoryImpl struct{}
 
-func (*MemoryServiceFactoryImpl) CreateMemoryService(typeNames []string) (result MemoryService) {
-	result.data = make(Database, len(typeNames))
-	for _, typeName := range typeNames {
-		result.data[typeName] = make(RecordMap, 10000)
+func (*MemoryServiceFactoryImpl) CreateMemoryService(models []model.Model, sizes []int) (result MemoryService) {
+	result.data = make(Database, len(models))
+	for i, model := range models {
+		result.data[model] = make(RecordMap, sizes[i])
 	}
 
 	return
 }
 
-func (m *MemoryService) Add(record *entity.Record) {
-	m.data[record.Definition.EntityType][record.Id()] = record
+func (m *MemoryService) Info() string {
+	stat := ""
+	for key, records := range m.data {
+		stat += fmt.Sprintf("%s: %v ", key, len(records))
+	}
+	return fmt.Sprintf("DB INFO[ %v]", stat)
 }
 
-func (m *MemoryService) Update(record entity.Record) {
-	// TODO update new fields
+var writeMutex sync.Mutex
+
+func (m *MemoryService) Add(record *model.Instance) {
+	writeMutex.Lock()
+	model := (*record).Model()
+	id := (*record).Id()
+	m.data[model][id] = record
+	writeMutex.Unlock()
 }
 
-func (m *MemoryService) Get(entityType string, id int) *entity.Record {
-	return m.data[entityType][id]
+// func (m *MemoryService) Update(record entity.Record) {
+// 	// TODO update new fields
+// }
+
+func (m *MemoryService) Get(model *model.Model, id int) *model.Instance {
+	return m.data[*model][id]
 }

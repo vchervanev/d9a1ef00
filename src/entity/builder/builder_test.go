@@ -3,10 +3,6 @@ package builder
 import "testing"
 import "../../entity"
 
-// func Build(definition *entity.Definition, names, values [][]byte) (result entity.Record) {}
-
-// func Update(record *entity.Record, names, values [][]byte) {}
-
 func bytesEql(bytes1, bytes2 []byte, t *testing.T) {
 	s1 := string(bytes1)
 	s2 := string(bytes2)
@@ -31,25 +27,25 @@ var definition = &entity.Definition{
 }
 
 func TestBuild(t *testing.T) {
-	record := Build(definition, [][]byte{attr3, attr2, attr1}, [][]byte{value3, value2, value1})
+	record := Build(definition, [][]byte{value3, value2, value1})
 
 	if len(record.Data) != 3 {
 		t.Fatal("Expected array of 3 records")
 	}
-	bytesEql(record.Data[0], value1, t)
+	bytesEql(record.Data[0], value3, t)
 	bytesEql(record.Data[1], value2, t)
-	bytesEql(record.Data[2], value3, t)
+	bytesEql(record.Data[2], value1, t)
 }
 
 func TestUpdate(t *testing.T) {
 	record := entity.Record{Definition: definition, Data: [][]byte{value1, value2, value3}}
 
-	Update(&record, [][]byte{attr3, attr1}, [][]byte{value4, value5})
+	Update(&record, [][]byte{value4, nil, value5})
 
 	if len(record.Data) != 3 {
 		t.Fatal("Expected array of 3 records")
 	}
-	bytesEql(record.Data[0], value5, t)
+	bytesEql(record.Data[0], value4, t)
 	bytesEql(record.Data[1], value2, t)
-	bytesEql(record.Data[2], value4, t)
+	bytesEql(record.Data[2], value5, t)
 }

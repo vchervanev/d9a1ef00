@@ -2,11 +2,15 @@ package builder
 
 import "../../entity"
 
-func Build(definition *entity.Definition, names, values [][]byte) (result *entity.Record) {
+func Build(definition *entity.Definition, values [][]byte) (result *entity.Record) {
 	record := entity.Record{Definition: definition, Data: values}
-	// TODO check values order!
 	return &record
 }
 
-func Update(record *entity.Record, names, values [][]byte) {
+func Update(record *entity.Record, values [][]byte) {
+	for i, value := range values {
+		if value != nil {
+			record.Data[i] = value
+		}
+	}
 }

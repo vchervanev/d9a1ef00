@@ -7,7 +7,15 @@ type Reader func(source []byte) []byte
 func Null(source []byte) []byte { return nil }
 
 // String slices `source` to cut off starting and ending quotes
-func String(source []byte) []byte { return source[1 : len(source)-1] }
+func LightString(source []byte) []byte { return source[1 : len(source)-1] }
+
+func String(source []byte) []byte { return dup(source[1 : len(source)-1]) }
 
 // Constant returns `source` value itself
-func Constant(source []byte) []byte { return (source)[:] }
+func Constant(source []byte) []byte { return dup(source) }
+
+func dup(src []byte) (result []byte) {
+	result = make([]byte, len(src))
+	copy(result, src)
+	return
+}
